@@ -20,9 +20,9 @@ wget -q https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zab
 dpkg -i /tmp/zabbix-release.deb
 apt update -y
 
-apt install zabbix-agent -y
+apt install zabbix-agent2 -y
 
-CONF_FILE="/etc/zabbix/zabbix_agentd.conf"
+CONF_FILE="/etc/zabbix/zabbix_agent2.conf"
 
 sed -i "s/^Server=.*/Server=${ZABBIX_SERVER}/" $CONF_FILE
 sed -i "s/^ServerActive=.*/ServerActive=${ZABBIX_SERVER}/" $CONF_FILE
@@ -30,8 +30,8 @@ sed -i "s/^Hostname=.*/Hostname=${HOSTNAME}/" $CONF_FILE
 
 sed -i "s/^# ListenIP=.*/ListenIP=0.0.0.0/" $CONF_FILE
 
-systemctl restart zabbix-agent
-systemctl enable zabbix-agent
+systemctl restart zabbix-agent2
+systemctl enable zabbix-agent2
 
 echo "Agent configurado!"
 
