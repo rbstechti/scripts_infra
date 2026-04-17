@@ -69,25 +69,30 @@ echo "Template ID: $TEMPLATE_ID"
 
 echo "Criando host..."
 
-curl -s -X POST -H 'Content-Type: application/json' \
--d "{
-    \"jsonrpc\": \"2.0\",
-    \"method\": \"host.create\",
-    \"params\": {
-        \"host\": \"$HOSTNAME\",
-        \"groups\": [{\"groupid\": \"$GROUP_ID\"}],
-        \"templates\": [{\"templateid\": \"$TEMPLATE_ID\"}],
-        \"interfaces\": [{
-            \"type\": 1,
-            \"main\": 1,
-            \"useip\": 1,
-            \"ip\": \"127.0.0.1\",
-            \"dns\": \"\",
-            \"port\": \"10050\"
-        }]
-    },
-    \"auth\": \"$ZABBIX_TOKEN\",
-    \"id\": 1
-}" $ZABBIX_URL
+JSON=$(cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "method": "host.create",
+  "params": {
+    "host": "$HOSTNAME",
+    "groups": [{"groupid": "$GROUP_ID"}],
+    "templates": [{"templateid": "$TEMPLATE_ID"}],
+    "interfaces": [{
+      "type": 1,
+      "main": 1,
+      "useip": 1,
+      "ip": "127.0.0.1",
+      "dns": "",
+      "port": "10050"
+    }]
+  },
+  "auth": "$ZABBIX_TOKEN",
+  "id": 1
+}
+EOF
+)
 
-echo "Host criado no RBS Tech ZBX-SV-0001"
+curl -s -X POST -H 'Content-Type: application/json' \
+-d "$JSON" $ZABBIX_URL
+
+echo "Host criado no RBS ZBX-SV-0001"
