@@ -66,7 +66,6 @@ TEMPLATE_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
 }" $ZABBIX_URL | jq -r '.result[0].templateid')
 
 echo "Template ID: $TEMPLATE_ID"
-
 echo "Criando host..."
 
 JSON=$(cat <<EOF
@@ -95,4 +94,4 @@ EOF
 curl -s -X POST -H 'Content-Type: application/json' \
 -d "$JSON" $ZABBIX_URL
 
-echo "Host criado no RBS ZBX-SV-0001"
+echo "Host criado no Zabbix!"
