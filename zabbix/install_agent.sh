@@ -43,7 +43,7 @@ GROUP_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
     \"jsonrpc\": \"2.0\",
     \"method\": \"hostgroup.get\",
     \"params\": {
-        \"filter\": {\"name\": [\"Clientes/CWP\"]}
+        \"filter\": {\"name\": [\"Clientes/CLASSIFICAR"]}
     },
     \"auth\": \"$ZABBIX_TOKEN\",
     \"id\": 1
