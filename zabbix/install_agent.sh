@@ -1,14 +1,13 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-  echo "Uso: $0 <SENHA_ZABBIX>"
+  echo "Uso: $0 <API_TOKEN>"
   exit 1
 fi
 
 ZABBIX_SERVER="zbx.suporterbs.com.br"
 ZABBIX_URL="https://zbx.suporterbs.com.br/api_jsonrpc.php"
-ZABBIX_USER="Admin"
-ZABBIX_PASS="$1"
+ZABBIX_TOKEN="$1"
 
 HOSTNAME=$(hostname)
 
@@ -37,22 +36,6 @@ systemctl enable zabbix-agent
 echo "Agent configurado!"
 
 # =========================
-# LOGIN API
-# =========================
-TOKEN=$(curl -s -X POST -H 'Content-Type: application/json' \
--d "{
-    \"jsonrpc\": \"2.0\",
-    \"method\": \"user.login\",
-    \"params\": {
-        \"username\": \"${ZABBIX_USER}\",
-        \"password\": \"${ZABBIX_PASS}\"
-    },
-    \"id\": 1
-}" $ZABBIX_URL | jq -r '.result')
-
-echo "Token OK"
-
-# =========================
 # GROUP ID
 # =========================
 GROUP_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
@@ -62,9 +45,11 @@ GROUP_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
     \"params\": {
         \"filter\": {\"name\": [\"Clientes/CWP\"]}
     },
-    \"auth\": \"$TOKEN\",
+    \"auth\": \"$ZABBIX_TOKEN\",
     \"id\": 1
 }" $ZABBIX_URL | jq -r '.result[0].groupid')
+
+echo "Group ID: $GROUP_ID"
 
 # =========================
 # TEMPLATE ID
@@ -76,9 +61,11 @@ TEMPLATE_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
     \"params\": {
         \"filter\": {\"host\": [\"Linux by Zabbix agent active\"]}
     },
-    \"auth\": \"$TOKEN\",
+    \"auth\": \"$ZABBIX_TOKEN\",
     \"id\": 1
 }" $ZABBIX_URL | jq -r '.result[0].templateid')
+
+echo "Template ID: $TEMPLATE_ID"
 
 echo "Criando host..."
 
@@ -99,8 +86,8 @@ curl -s -X POST -H 'Content-Type: application/json' \
             \"port\": \"10050\"
         }]
     },
-    \"auth\": \"$TOKEN\",
+    \"auth\": \"$ZABBIX_TOKEN\",
     \"id\": 1
 }" $ZABBIX_URL
 
-echo "Host criado no Zabbix!"
+echo "Host criado no RBS Tech ZBX-SV-0001"
