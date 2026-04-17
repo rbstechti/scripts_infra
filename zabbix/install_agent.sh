@@ -27,7 +27,6 @@ CONF_FILE="/etc/zabbix/zabbix_agent2.conf"
 sed -i "s/^Server=.*/Server=${ZABBIX_SERVER}/" $CONF_FILE
 sed -i "s/^ServerActive=.*/ServerActive=${ZABBIX_SERVER}/" $CONF_FILE
 sed -i "s/^Hostname=.*/Hostname=${HOSTNAME}/" $CONF_FILE
-
 sed -i "s/^# ListenIP=.*/ListenIP=0.0.0.0/" $CONF_FILE
 
 systemctl restart zabbix-agent2
@@ -35,37 +34,30 @@ systemctl enable zabbix-agent2
 
 echo "Agent configurado!"
 
-# =========================
 # GROUP ID
-# =========================
 GROUP_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
 -d "{
-    \"jsonrpc\": \"2.0\",
-    \"method\": \"hostgroup.get\",
-    \"params\": {
-        \"filter\": {\"name\": [\"Clientes/CLASSIFICAR"]}
-    },
-    \"auth\": \"$ZABBIX_TOKEN\",
-    \"id\": 1
+  \"jsonrpc\": \"2.0\",
+  \"method\": \"hostgroup.get\",
+  \"params\": {
+    \"filter\": {\"name\": [\"Clientes/CLASSIFICAR\"]}
+  },
+  \"auth\": \"$ZABBIX_TOKEN\",
+  \"id\": 1
 }" $ZABBIX_URL | jq -r '.result[0].groupid')
 
-echo "Group ID: $GROUP_ID"
-
-# =========================
 # TEMPLATE ID
-# =========================
 TEMPLATE_ID=$(curl -s -X POST -H 'Content-Type: application/json' \
 -d "{
-    \"jsonrpc\": \"2.0\",
-    \"method\": \"template.get\",
-    \"params\": {
-        \"filter\": {\"host\": [\"Linux by Zabbix agent active\"]}
-    },
-    \"auth\": \"$ZABBIX_TOKEN\",
-    \"id\": 1
+  \"jsonrpc\": \"2.0\",
+  \"method\": \"template.get\",
+  \"params\": {
+    \"filter\": {\"host\": [\"Linux by Zabbix agent active\"]}
+  },
+  \"auth\": \"$ZABBIX_TOKEN\",
+  \"id\": 1
 }" $ZABBIX_URL | jq -r '.result[0].templateid')
 
-echo "Template ID: $TEMPLATE_ID"
 echo "Criando host..."
 
 JSON=$(cat <<EOF
