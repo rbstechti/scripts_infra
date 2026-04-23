@@ -41,7 +41,7 @@ $groupBody = @{
     method  = "hostgroup.get"
     params  = @{
         filter = @{
-            name = @("clientes/CLASSIFICAR")
+            name = @("Clientes/CLASSIFICAR")
         }
     }
     auth = $ZABBIX_TOKEN
