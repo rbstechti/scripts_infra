@@ -1,0 +1,97 @@
+# =========================
+# CONFIG
+# =========================
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$ZABBIX_TOKEN
+)
+
+$ZABBIX_SERVER = "zbx.suporterbs.com.br"
+$ZABBIX_URL = "https://zbx.suporterbs.com.br/api_jsonrpc.php"
+$HOSTNAME = $env:COMPUTERNAME
+
+Write-Host "Hostname: $HOSTNAME"
+
+# =========================
+# DOWNLOAD AGENT2
+# =========================
+$AGENT_URL = "https://repo.zabbix.com/zabbix/7.0/windows/zabbix_agent2-7.0.0-windows-amd64.msi"
+$AGENT_PATH = "$env:TEMP\zabbix_agent2.msi"
+
+Invoke-WebRequest -Uri $AGENT_URL -OutFile $AGENT_PATH
+
+# =========================
+# INSTALL AGENT2
+# =========================
+Start-Process msiexec.exe -ArgumentList "/i `"$AGENT_PATH`" /qn SERVER=$ZABBIX_SERVER SERVERACTIVE=$ZABBIX_SERVER HOSTNAME=$HOSTNAME" -Wait
+
+# =========================
+# START SERVICE
+# =========================
+Start-Service "Zabbix Agent 2"
+Set-Service "Zabbix Agent 2" -StartupType Automatic
+
+Write-Host "Agent instalado e iniciado!"
+
+# =========================
+# GROUP ID
+# =========================
+$groupBody = @{
+    jsonrpc = "2.0"
+    method  = "hostgroup.get"
+    params  = @{
+        filter = @{
+            name = @("clientes/CLASSIFICAR")
+        }
+    }
+    auth = $ZABBIX_TOKEN
+    id = 1
+} | ConvertTo-Json -Depth 5
+
+$GROUP_ID = (Invoke-RestMethod -Uri $ZABBIX_URL -Method Post -Body $groupBody -ContentType "application/json").result[0].groupid
+
+# =========================
+# TEMPLATE ID
+# =========================
+$templateBody = @{
+    jsonrpc = "2.0"
+    method  = "template.get"
+    params  = @{
+        filter = @{
+            host = @("Windows by Zabbix agent active")
+        }
+    }
+    auth = $ZABBIX_TOKEN
+    id = 1
+} | ConvertTo-Json -Depth 5
+
+$TEMPLATE_ID = (Invoke-RestMethod -Uri $ZABBIX_URL -Method Post -Body $templateBody -ContentType "application/json").result[0].templateid
+
+# =========================
+# CREATE HOST
+# =========================
+$hostBody = @{
+    jsonrpc = "2.0"
+    method  = "host.create"
+    params  = @{
+        host = $HOSTNAME
+        groups = @(@{ groupid = $GROUP_ID })
+        templates = @(@{ templateid = $TEMPLATE_ID })
+        interfaces = @(
+            @{
+                type = 1
+                main = 1
+                useip = 1
+                ip = "127.0.0.1"
+                dns = ""
+                port = "10050"
+            }
+        )
+    }
+    auth = $ZABBIX_TOKEN
+    id = 1
+} | ConvertTo-Json -Depth 10
+
+Invoke-RestMethod -Uri $ZABBIX_URL -Method Post -Body $hostBody -ContentType "application/json"
+
+Write-Host "Host criado no Zabbix!"
