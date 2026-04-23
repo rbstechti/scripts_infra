@@ -15,7 +15,7 @@ Write-Host "Hostname: $HOSTNAME"
 # =========================
 # DOWNLOAD AGENT2
 # =========================
-$AGENT_URL = "https://cdn.zabbix.com/zabbix/binaries/stable/7.0/7.0.25/zabbix_agent-7.0.25-windows-amd64-openssl.msi"
+$AGENT_URL = "https://cdn.zabbix.com/zabbix/binaries/stable/7.0/7.0.25/zabbix_agent2-7.0.25-windows-amd64-openssl.msi"
 $AGENT_PATH = "$env:TEMP\zabbix_agent2.msi"
 
 Invoke-WebRequest -Uri $AGENT_URL -OutFile $AGENT_PATH
