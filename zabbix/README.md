@@ -1,11 +1,14 @@
 # Zabbix Agent Auto Install
 
-## Uso
+## Linux
 
 ```bash
 wget https://raw.githubusercontent.com/rbstechti/scripts_infra/main/zabbix/install_agent.sh -O install_agent.sh
 chmod +x install_agent.sh
 ./install_agent.sh TOKEN
+
+
+## Windows
 
 ```bash
 Invoke-WebRequest "https://raw.githubusercontent.com/rbstechti/scripts_infra/main/zabbix/install_agent_windows" -OutFile install_agent.ps1
